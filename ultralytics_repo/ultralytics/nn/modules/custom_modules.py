@@ -145,3 +145,4 @@ class ConvNeXtV2_Stage(nn.Module):
 
     def forward(self, x):
         return self.stage(x)
+

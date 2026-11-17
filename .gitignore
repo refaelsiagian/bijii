@@ -9,9 +9,15 @@ __pycache__/
 *$py.class
 *.ipynb_checkpoints/
 
-# Dataset gambar dan label (ukurannya besar, jangan di-push ke GitHub)
-dataset/images/
-dataset/labels/
+# Dataset gambar dan label (ukurannya besar, simpan lokal, jangan push ke GitHub)
+dataset/**/*.jpg
+dataset/**/*.jpeg
+dataset/**/*.png
+dataset/**/*.bmp
+dataset/**/*.txt
+!dataset/**/.gitkeep
+!dataset/**/data.yaml
+!dataset/data.yaml
 datasets/
 
 # Bobot model hasil training (file .pt biasanya >100MB dan dilarang GitHub)
@@ -29,4 +35,3 @@ Desktop.ini
 
 # File exum
 Exum_231402055.pdf
-
