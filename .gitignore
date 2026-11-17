@@ -1,0 +1,29 @@
+# Virtual Environment
+venv_skripsi/
+venv/
+env/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.ipynb_checkpoints/
+
+# Dataset gambar dan label (ukurannya besar, jangan di-push ke GitHub)
+dataset/images/
+dataset/labels/
+datasets/
+
+# Bobot model hasil training (file .pt biasanya >100MB dan dilarang GitHub)
+runs/
+*.pt
+*.pth
+*.onnx
+*.engine
+
+# File konfigurasi editor & OS
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+
