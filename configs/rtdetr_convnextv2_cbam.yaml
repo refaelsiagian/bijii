@@ -1,0 +1,51 @@
+# ====================================================================
+# ARSITEKTUR HIBRID RT-DETR + CONVNEXT V2 + CBAM
+# Riset Skripsi S-1 TI Fasilkom-TI USU: Refael Juari Siagian (231402055)
+# ====================================================================
+
+nc: 80 # Jumlah kelas (akan otomatis disesuaikan dengan dataset biji Fabaceae)
+scales:
+  l: [1.00, 1.00, 1024]
+
+# --------------------------------------------------------------------
+# 1. BACKBONE: ConvNeXt V2 terintegrasi CBAM
+# --------------------------------------------------------------------
+backbone:
+  # [from, repeats, module, args]
+  - [-1, 1, ConvNeXtV2_Stem, [64]]                    # 0: P2/4 (64 saluran)
+  - [-1, 1, ConvNeXtV2_Stage, [64, 2, False]]          # 1: Stage 0 (64 saluran, stride 1)
+  - [-1, 1, ConvNeXtV2_Stage, [128, 2, True]]          # 2: Stage 1 -> P3/8 (128 saluran, stride 2)
+  - [-1, 1, CBAM, []]                                  # 3: Integrasi CBAM pada P3 (128 saluran)
+  - [-1, 1, ConvNeXtV2_Stage, [256, 2, True]]          # 4: Stage 2 -> P4/16 (256 saluran, stride 2)
+  - [-1, 1, CBAM, []]                                  # 5: Integrasi CBAM pada P4 (256 saluran)
+  - [-1, 1, ConvNeXtV2_Stage, [512, 2, True]]          # 6: Stage 3 -> P5/32 (512 saluran, stride 2)
+  - [-1, 1, CBAM, []]                                  # 7: Integrasi CBAM pada P5 (512 saluran)
+
+# --------------------------------------------------------------------
+# 2. HEAD: Hybrid Encoder (AIFI + CCFM) & RT-DETR Transformer Decoder
+# --------------------------------------------------------------------
+head:
+  - [-1, 1, Conv, [256, 1, 1, None, 1, 1, False]]      # 8: Proyeksi P5 ke 256 saluran
+  - [-1, 1, AIFI, [1024, 8]]                           # 9: Intra-scale Feature Interaction (AIFI)
+  - [-1, 1, Conv, [256, 1, 1]]                         # 10: Y5
+
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]          # 11: Upsample Y5 ke skala P4
+  - [5, 1, Conv, [256, 1, 1, None, 1, 1, False]]       # 12: Proyeksi CBAM-P4 (layer 5) ke 256 saluran
+  - [[-2, -1], 1, Concat, [1]]                         # 13: Fusi fitur lateral skala P4
+  - [-1, 3, RepC3, [256]]                              # 14: Cross-scale aggregation
+  - [-1, 1, Conv, [256, 1, 1]]                         # 15: Y4
+
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]          # 16: Upsample Y4 ke skala P3
+  - [3, 1, Conv, [256, 1, 1, None, 1, 1, False]]       # 17: Proyeksi CBAM-P3 (layer 3) ke 256 saluran
+  - [[-2, -1], 1, Concat, [1]]                         # 18: Fusi fitur lateral skala P3
+  - [-1, 3, RepC3, [256]]                              # 19: X3 (Output P3 terfusi)
+
+  - [-1, 1, Conv, [256, 3, 2]]                         # 20: Downsample X3 ke skala P4
+  - [[-1, 15], 1, Concat, [1]]                         # 21: Konkatenasi dengan Y4 (layer 15)
+  - [-1, 3, RepC3, [256]]                              # 22: F4 (Output P4 terfusi)
+
+  - [-1, 1, Conv, [256, 3, 2]]                         # 23: Downsample F4 ke skala P5
+  - [[-1, 10], 1, Concat, [1]]                         # 24: Konkatenasi dengan Y5 (layer 10)
+  - [-1, 3, RepC3, [256]]                              # 25: F5 (Output P5 terfusi)
+
+  - [[19, 22, 25], 1, RTDETRDecoder, [nc]]             # 26: RTDETRDecoder(P3, P4, P5) Bebas-NMS

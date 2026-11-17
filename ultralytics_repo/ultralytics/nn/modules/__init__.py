@@ -190,4 +190,17 @@ __all__ = (
     "YOLOESegment",
     "YOLOESegment26",
     "v10Detect",
+    "CBAM",
+    "GRN",
+    "ConvNeXtV2_Block",
+    "ConvNeXtV2_Stem",
+    "ConvNeXtV2_Stage",
+)
+
+from .custom_modules import (
+    CBAM,
+    GRN,
+    ConvNeXtV2_Block,
+    ConvNeXtV2_Stem,
+    ConvNeXtV2_Stage,
 )

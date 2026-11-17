@@ -73,6 +73,11 @@ from ultralytics.nn.modules import (
     Segment26,
     SemanticSegment,
     TorchVision,
+    CBAM,
+    ConvNeXtV2_Stem,
+    ConvNeXtV2_Stage,
+    ConvNeXtV2_Block,
+    GRN,
     WorldDetect,
     YOLOEDetect,
     YOLOESegment,
@@ -2227,6 +2232,18 @@ def parse_model(d, ch, verbose=True):
             args.insert(1, [ch[x] for x in f])  # channels as second arg
         elif m is RTDETRDecoder:  # special case, channels arg must be passed in index 1
             args.insert(1, [ch[x] for x in f])
+        elif m is CBAM:
+            c1 = ch[f]
+            c2 = c1
+            args = [c1, *args]
+        elif m is ConvNeXtV2_Stem:
+            c1 = ch[f]
+            c2 = args[0]
+            args = [c1, *args]
+        elif m is ConvNeXtV2_Stage:
+            c1 = ch[f]
+            c2 = args[0]
+            args = [c1, *args]
         elif m is CBLinear:
             c2 = args[0]
             c1 = ch[f]
