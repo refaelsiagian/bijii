@@ -13,6 +13,7 @@ __pycache__/
 dataset/**/*.jpg
 dataset/**/*.jpeg
 dataset/**/*.png
+dataset/**/*.heic
 dataset/**/*.bmp
 dataset/**/*.txt
 !dataset/**/.gitkeep
@@ -21,7 +22,6 @@ dataset/**/*.txt
 datasets/
 
 # Bobot model hasil training (file .pt biasanya >100MB dan dilarang GitHub)
-runs/
 *.pt
 *.pth
 *.onnx
